@@ -10,6 +10,7 @@ lerna-debug.log*
 client/node_modules
 sever/node_modules
 client/dist
+client/.next
 clientdist-ssr
 client/*.local
 

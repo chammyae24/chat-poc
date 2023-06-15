@@ -6,21 +6,42 @@ type Props = {
 };
 
 export default async function ChatPage({ params }: Props) {
-  const res = await fetch(`http:///localhost:4130/chat/${params.id}`, {
-    cache: "no-store"
-  });
+  try {
+    const res = await fetch(`http:///localhost:4130/chat/${params.id}`, {
+      cache: "no-store"
+    });
 
-  if (res.status !== 200) {
+    console.log(await res.json());
+
+    return (
+      <div>
+        <Chat userId={params.id} />
+      </div>
+    );
+  } catch (e) {
+    console.log(e);
+
     return (
       <div>
         <div>No User</div>
       </div>
     );
   }
+  // const res = await fetch(`http:///localhost:4130/chat/${params.id}`, {
+  //   cache: "no-store"
+  // });
 
-  return (
-    <div>
-      <Chat userId={params.id} />
-    </div>
-  );
+  // if (res.status !== 200) {
+  //   return (
+  //     <div>
+  //       <div>No User</div>
+  //     </div>
+  //   );
+  // }
+
+  // return (
+  //   <div>
+  //     <Chat userId={params.id} />
+  //   </div>
+  // );
 }
