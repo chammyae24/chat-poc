@@ -4,9 +4,11 @@ import Link from "next/link";
 
 const Nav = () => {
   const { data: session } = useSession();
+
   return (
     <div>
       <Link href="/protected">Protected Page</Link>
+      <Link href={"/chat/" + session?.user?.name}>Chat</Link>
 
       <div>
         {session?.user ? (

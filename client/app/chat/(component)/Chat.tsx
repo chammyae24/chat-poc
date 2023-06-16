@@ -6,8 +6,8 @@ const socket = io("http://localhost:4130");
 
 type Message = {
   id: number;
-  text: string;
-  createdAt: string;
+  content: string;
+  sent_at: string;
   userId: number;
 };
 
@@ -50,17 +50,17 @@ const Chat = ({ userId }: Props) => {
   return (
     <div>
       <div>
-        <ul className="flex flex-col w-[600px]">
+        <ul className="flex w-[600px] flex-col">
           {messages.map(message => (
             <li
               key={message.id}
               className={`${
                 parseInt(userId) === message.userId
-                  ? "text-white self-start"
-                  : "text-green-600 self-end"
+                  ? "self-start text-white"
+                  : "self-end text-green-600"
               }`}
             >
-              {message.text}
+              {message.content}
             </li>
           ))}
         </ul>

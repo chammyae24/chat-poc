@@ -23,9 +23,9 @@ const io = new Server(server, {
 const prisma = new PrismaClient();
 
 async function main() {
-  const testDb = await prisma.message.findMany();
+  const testDb = await prisma.userConversation.findMany();
 
-  //   console.log(testDb);
+  console.log(testDb);
 
   io.on("connection", async socket => {
     console.log("a user connected", socket.id);
@@ -92,7 +92,8 @@ app.get("/chat/:userId", async (req, res) => {
 
   const user = await prisma.user.findUnique({
     where: {
-      id: +req.params.userId
+      // id: +req.params.userId
+      username: req.params.userId
     }
   });
 
