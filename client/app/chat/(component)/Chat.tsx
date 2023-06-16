@@ -23,16 +23,19 @@ const Chat = ({ userId }: Props) => {
     socket.connect();
 
     socket.on("connect", () => {
-      console.log("Connected");
+      console.log("Connected", socket.id);
     });
 
-    socket.on("sentFromDb", (data: Message[]) => {
+    const onSentEvent = (data: Message[]) => {
       console.log("updating");
 
       setMessages(data);
-    });
+    };
+
+    socket.on("sentFromDb", onSentEvent);
 
     return () => {
+      socket.off("sentFromDb", onSentEvent);
       socket.disconnect();
     };
   }, []);

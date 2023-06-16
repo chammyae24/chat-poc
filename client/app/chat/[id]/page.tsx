@@ -11,7 +11,10 @@ export default async function ChatPage({ params }: Props) {
       cache: "no-store"
     });
 
-    console.log(await res.json());
+    // console.log(res.ok);
+    if (!res.ok) {
+      throw new Error("Could not found user");
+    }
 
     return (
       <div>

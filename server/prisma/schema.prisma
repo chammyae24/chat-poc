@@ -10,18 +10,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Messages {
-  id        Int      @id @default(autoincrement())
-  text      String?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+model User {
+  id            Int                @id @default(autoincrement())
+  username      String             @unique
+  password      String
+  email         String
+  created_at    DateTime           @default(now())
+  updated_at    DateTime           @updatedAt
+  sentMessages  Message[]          @relation("SenderMessages")
+  conversations UserConversation[]
 }
 
-model User {
-  id       Int        @id @default(autoincrement())
-  name     String
-  messages Messages[]
+model Conversation {
+  id           Int                @id @default(autoincrement())
+  name         String?
+  created_at   DateTime           @default(now())
+  updated_at   DateTime           @updatedAt
+  messages     Message[]
+  participants UserConversation[]
+}
 
-  @@unique([name])
+model Message {
+  id              Int          @id @default(autoincrement())
+  content         String
+  sent_at         DateTime     @default(now())
+  conversation_id Int
+  sender_id       Int
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
+  sender          User         @relation("SenderMessages", fields: [sender_id], references: [id])
+}
+
+model UserConversation {
+  user_id         Int
+  conversation_id Int
+  joined_at       DateTime     @default(now())
+  user            User         @relation(fields: [user_id], references: [id])
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
+
+  @@id([user_id, conversation_id])
 }
