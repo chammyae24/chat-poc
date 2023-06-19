@@ -2,20 +2,13 @@
 import { FormEvent, useEffect, useState } from "react";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:4130");
-
-type Message = {
-  id: number;
-  content: string;
-  sent_at: string;
-  userId: number;
-};
+const socket = io(process.env.API_URL!);
 
 type Props = {
-  userId: string;
+  username: string;
 };
 
-const Chat = ({ userId }: Props) => {
+const Chat = ({ username }: Props) => {
   const [text, setText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -43,7 +36,7 @@ const Chat = ({ userId }: Props) => {
   const submitHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    socket.emit("sendText", { text, userId });
+    socket.emit("sendText", { text, username });
     setText("");
   };
 
@@ -55,7 +48,7 @@ const Chat = ({ userId }: Props) => {
             <li
               key={message.id}
               className={`${
-                parseInt(userId) === message.userId
+                username === message.sender_id
                   ? "self-start text-white"
                   : "self-end text-green-600"
               }`}

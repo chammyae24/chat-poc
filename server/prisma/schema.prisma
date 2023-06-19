@@ -10,42 +10,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            Int                @id @default(autoincrement())
-  username      String             @unique
+model user {
+  id            String              @id @default(uuid())
+  username      String              @unique
   password      String
-  email         String
-  created_at    DateTime           @default(now())
-  updated_at    DateTime           @updatedAt
-  sentMessages  Message[]          @relation("SenderMessages")
-  conversations UserConversation[]
+  email         String              @unique
+  created_at    DateTime            @default(now())
+  updated_at    DateTime            @updatedAt
+  sentMessages  message[]           @relation("SenderMessages")
+  conversations user_conversation[]
 }
 
-model Conversation {
-  id           Int                @id @default(autoincrement())
+model conversation {
+  id           String              @id @default(uuid())
   name         String?
-  created_at   DateTime           @default(now())
-  updated_at   DateTime           @updatedAt
-  messages     Message[]
-  participants UserConversation[]
+  created_at   DateTime            @default(now())
+  updated_at   DateTime            @updatedAt
+  messages     message[]
+  participants user_conversation[]
 }
 
-model Message {
-  id              Int          @id @default(autoincrement())
+model message {
+  id              String       @id @default(uuid())
   content         String
   sent_at         DateTime     @default(now())
-  conversation_id Int
-  sender_id       Int
-  conversation    Conversation @relation(fields: [conversation_id], references: [id])
-  sender          User         @relation("SenderMessages", fields: [sender_id], references: [id])
+  conversation_id String
+  sender_id       String
+  conversation    conversation @relation(fields: [conversation_id], references: [id])
+  sender          user         @relation("SenderMessages", fields: [sender_id], references: [id])
 }
 
-model UserConversation {
-  user_id         Int
-  conversation_id Int
+model user_conversation {
+  user_id         String
+  conversation_id String
   joined_at       DateTime     @default(now())
-  user            User         @relation(fields: [user_id], references: [id])
-  conversation    Conversation @relation(fields: [conversation_id], references: [id])
+  user            user         @relation(fields: [user_id], references: [id])
+  conversation    conversation @relation(fields: [conversation_id], references: [id])
 
   @@id([user_id, conversation_id])
 }
