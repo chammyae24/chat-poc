@@ -141,6 +141,8 @@ app.get("/chat/:username", async (req, res) => {
 
   if (user) {
     const conversations = await loadConversations(user.username);
+    console.log(conversations);
+
     res.status(200).json({ ...user, conversations, contact });
   } else {
     res.status(404).send({ message: "User not found" });
