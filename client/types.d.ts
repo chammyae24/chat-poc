@@ -24,8 +24,10 @@ interface Message {
   id: string;
   content: string;
   sent_at: string;
-  conversation_id: string;
-  sender_id: string;
+  sender: {
+    id: string;
+    username: string;
+  };
 }
 
 interface Conversations {

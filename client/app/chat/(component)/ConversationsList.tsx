@@ -1,5 +1,4 @@
 "use client";
-import useAuthContext from "@/app/context/auth-context/useAuthContext";
 import Link from "next/link";
 import { MouseEvent, useEffect } from "react";
 
@@ -29,11 +28,6 @@ const ConversationsList = ({ user }: { user: User }) => {
     }
   };
 
-  const { authUser } = useAuthContext();
-  // console.log({ authUser });
-  console.log(user);
-  
-
   return (
     <div>
       <h1>Hi</h1>
@@ -41,7 +35,9 @@ const ConversationsList = ({ user }: { user: User }) => {
       <ul>
         {user.conversations?.map(c => (
           <li key={c.conversation.id} className="underline">
-            <Link href={`/chat/conversation/${c.conversation.id}`}>
+            <Link
+              href={`/chat/${user.username}/conversation/${c.conversation.id}`}
+            >
               {c.conversation.name}
             </Link>
           </li>

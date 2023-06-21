@@ -5,7 +5,6 @@ import { Server } from "socket.io";
 import { PrismaClient, user } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { loadConversations } from "./modules/chat";
 
 const app = express();
 app.use(express.json());
@@ -206,9 +205,23 @@ app.get("/chat/conversation/:id", async (req, res) => {
       where: {
         id
       },
-      include: {
-        messages: true,
-        participants: true
+      select: {
+        id: true,
+        created_at: true,
+
+        messages: {
+          select: {
+            sent_at: true,
+            content: true,
+            id: true,
+            sender: {
+              select: {
+                id: true,
+                username: true
+              }
+            }
+          }
+        }
       }
     });
 

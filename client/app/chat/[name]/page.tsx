@@ -17,7 +17,6 @@ export default async function ChatPage({ params }: Props) {
     }
 
     const user = await res.json();
-    // console.log(user);
 
     return (
       <div>

@@ -15,8 +15,6 @@ const Chat = ({ username }: Props) => {
 
   const { data } = useSession();
 
-  // console.log(data);
-
   useEffect(() => {
     // socket.connect();
     // socket.on("connect", () => {
@@ -45,16 +43,7 @@ const Chat = ({ username }: Props) => {
       <div>
         <ul className="flex w-[600px] flex-col">
           {messages.map(message => (
-            <li
-              key={message.id}
-              className={`${
-                username === message.sender_id
-                  ? "self-start text-white"
-                  : "self-end text-green-600"
-              }`}
-            >
-              {message.content}
-            </li>
+            <li key={message.id}>{message.content}</li>
           ))}
         </ul>
       </div>

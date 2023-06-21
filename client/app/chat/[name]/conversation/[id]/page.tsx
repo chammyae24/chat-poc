@@ -1,4 +1,4 @@
-import Conversation from "../../(component)/Conversation";
+import Conversation from "../../../(component)/Conversation";
 
 type Props = {
   params: { id: string };
@@ -7,12 +7,13 @@ type Props = {
 export default async function ConversationPage({ params }: Props) {
   try {
     const res = await fetch(
-      `${process.env.API_URL}/chat/conversation/${params.id}`
+      `${process.env.API_URL}/chat/conversation/${params.id}`,
+      {
+        cache: "no-store"
+      }
     );
 
     const { conversation } = await res.json();
-
-    // console.log({ result: await res.json() });
 
     return (
       <div>
