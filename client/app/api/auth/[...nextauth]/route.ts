@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 const handler = NextAuth({
@@ -31,6 +31,8 @@ const handler = NextAuth({
         const { user } = await res.json();
 
         if (res.ok && user) {
+          // console.log({ user });
+
           return user;
         } else {
           return null;
@@ -43,6 +45,26 @@ const handler = NextAuth({
   },
   pages: {
     signIn: "/login"
+  },
+  callbacks: {
+    async jwt({ token, user, session }) {
+      // console.log("JWT");
+      // console.log({ user });
+
+      if (user) {
+        token.accessToken = user.token;
+      }
+
+      return token;
+    },
+    async session({ session, token, user }) {
+      // console.log("session");
+      // console.log({ session, token });
+
+      session.user.accessToken = token.accessToken as string;
+
+      return session;
+    }
   }
 });
 

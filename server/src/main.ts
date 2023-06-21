@@ -125,25 +125,25 @@ app.post("/auth/signup", async (req, res) => {
 });
 
 app.get("/chat/:username", async (req, res) => {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
       username: req.params.username
-    }
-  });
-
-  const contact = await prisma.user.findMany({
-    where: {
-      NOT: {
-        id: user?.id
+    },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      created_at: true,
+      conversations: {
+        select: {
+          conversation: true
+        }
       }
     }
   });
 
   if (user) {
-    const conversations = await loadConversations(user.username);
-    console.log(conversations);
-
-    res.status(200).json({ ...user, conversations, contact });
+    res.status(200).json(user);
   } else {
     res.status(404).send({ message: "User not found" });
   }
@@ -152,20 +152,31 @@ app.get("/chat/:username", async (req, res) => {
 app.post("/chat/conversations/create", async (req, res) => {
   try {
     const { name, participants } = req.body;
-
     // ! DON'T DELETE THIS
-    await prisma.user_conversation.deleteMany();
-    await prisma.conversation.deleteMany();
+    // await prisma.user_conversation.deleteMany();
+    // await prisma.conversation.deleteMany();
 
-    const createdConversation = await prisma.conversation.create({
-      data: {
-        name: name ? name : null
+    const participantIds = await prisma.user.findMany({
+      where: {
+        username: {
+          in: participants
+        }
+      },
+      select: {
+        id: true,
+        username: true
       }
     });
 
-    const data = await participants.map((participant: string) => ({
+    const createdConversation = await prisma.conversation.create({
+      data: {
+        name: name ? name : participantIds.map(p => p.username).join()
+      }
+    });
+
+    const data = participantIds.map(participant => ({
       conversation_id: createdConversation.id,
-      user_id: participant
+      user_id: participant.id
     }));
 
     await prisma.user_conversation.createMany({
@@ -177,11 +188,58 @@ app.post("/chat/conversations/create", async (req, res) => {
         id: createdConversation.id
       },
       include: {
+        participants: true,
+        messages: true
+      }
+    });
+
+    res.status(200).json({ conversation });
+  } catch (err) {
+    res.status(500).send({ err });
+  }
+});
+
+app.get("/chat/conversation/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const conversation = await prisma.conversation.findUnique({
+      where: {
+        id
+      },
+      include: {
+        messages: true,
         participants: true
       }
     });
 
     res.status(200).json({ conversation });
+  } catch (err) {
+    res.status(500).send({ err });
+  }
+});
+
+app.post("/chat/conversation/message/create", async (req, res) => {
+  try {
+    const { token, conversationId, content } = req.body;
+
+    const { id: senderId } = jwt.verify(token, process.env.SECRET_KEY!) as {
+      id: string;
+      iat: number;
+    };
+
+    const message = await prisma.message.create({
+      data: {
+        content,
+        sender_id: senderId,
+        conversation_id: conversationId
+      },
+      include: {
+        conversation: true,
+        sender: true
+      }
+    });
+
+    res.status(200).send({ msg: "Ok", senderId, conversationId, message });
   } catch (err) {
     res.status(500).send({ err });
   }

@@ -1,5 +1,6 @@
 "use client";
-import { signIn } from "next-auth/react";
+import useAuthContext from "@/app/context/auth-context/useAuthContext";
+import { signIn, useSession } from "next-auth/react";
 import { FormEvent, useState } from "react";
 
 const LoginForm = () => {
@@ -9,14 +10,12 @@ const LoginForm = () => {
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const result = await signIn("credentials", {
+    await signIn("credentials", {
       username,
       password,
       redirect: true,
       callbackUrl: "/"
     });
-
-    console.log(result);
 
     setUsername("");
     setPassword("");

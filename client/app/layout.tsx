@@ -2,6 +2,10 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import useAuthContext, {
+  AuthContext
+} from "./context/auth-context/useAuthContext";
+import { useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,10 +21,16 @@ export default function RootLayout({
   children: React.ReactNode;
   session: any;
 }) {
+  const [authUser, setAuthUser] = useState<SessionUser | null>(null);
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SessionProvider session={session}>{children}</SessionProvider>
+        <SessionProvider session={session}>
+          <AuthContext.Provider value={{ authUser, setAuthUser }}>
+            {children}
+          </AuthContext.Provider>
+        </SessionProvider>
       </body>
     </html>
   );

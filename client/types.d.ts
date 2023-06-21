@@ -1,3 +1,10 @@
+interface SessionUser {
+  name?: string | null | undefined;
+  email?: string | null | undefined;
+  image?: string | null | undefined;
+  accessToken?: string;
+}
+
 interface User {
   id: string;
   username: string;
@@ -6,8 +13,11 @@ interface User {
   created_at: string;
   updated_at: string;
   sentMessages: ?Message[];
-  conversations: ?Conversations[];
+  conversations: ?{
+    conversation: Conversations;
+  }[];
   contact: User[];
+  token: ?string;
 }
 
 interface Message {

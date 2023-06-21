@@ -1,5 +1,7 @@
 "use client";
-import { MouseEvent } from "react";
+import useAuthContext from "@/app/context/auth-context/useAuthContext";
+import Link from "next/link";
+import { MouseEvent, useEffect } from "react";
 
 const ConversationsList = ({ user }: { user: User }) => {
   const createConversation = async (e: MouseEvent<HTMLButtonElement>) => {
@@ -22,18 +24,27 @@ const ConversationsList = ({ user }: { user: User }) => {
       if (!res.ok) {
         throw new Error("Couldn't create conversation.");
       }
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      console.log(err);
     }
   };
+
+  const { authUser } = useAuthContext();
+  // console.log({ authUser });
+  console.log(user);
+  
 
   return (
     <div>
       <h1>Hi</h1>
 
       <ul>
-        {user.contact.map(c => (
-          <li key={c.id}>{c.email}</li>
+        {user.conversations?.map(c => (
+          <li key={c.conversation.id} className="underline">
+            <Link href={`/chat/conversation/${c.conversation.id}`}>
+              {c.conversation.name}
+            </Link>
+          </li>
         ))}
       </ul>
 
