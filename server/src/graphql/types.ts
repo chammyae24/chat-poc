@@ -1,6 +1,6 @@
 import { PrismaClient, user } from "@prisma/client";
 import { createPubSub } from "graphql-yoga";
-import { Pubsub } from "..";
+import { Pubsub } from "../yoga";
 
 const pubsub = createPubSub();
 

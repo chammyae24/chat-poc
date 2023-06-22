@@ -5,8 +5,6 @@ import { typeDefs } from "./graphql/typeDefs";
 import { resolvers } from "./graphql/resolvers";
 import { JwtPayload, verify } from "jsonwebtoken";
 import { GraphQLContext } from "./graphql/types";
-import { WebSocketServer } from "ws";
-import { useServer } from "graphql-ws/lib/use/ws";
 
 const prisma = new PrismaClient();
 
