@@ -20,7 +20,6 @@ export default async function ChatPage({ params }: Props) {
     return (
       <div>
         <ConversationsList user={user} />
-        {/* <Chat username={params.name} /> */}
       </div>
     );
   } catch (e) {

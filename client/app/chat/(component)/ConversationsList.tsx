@@ -31,8 +31,6 @@ const ConversationsList = ({ user }: { user: User }) => {
 
   return (
     <div>
-      <h1>Hi</h1>
-
       <ul>
         {user.conversations?.map(c => (
           <li key={c.conversation.id} className="underline">
