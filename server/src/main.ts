@@ -17,9 +17,10 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000"
+    origin: ["http://localhost:3000"]
   }
 });
+app.set("socketio", io);
 
 const prisma = new PrismaClient();
 
@@ -47,6 +48,29 @@ async function main() {
   //   );
   //   socket.emit("sentFromDb", testDb);
   // });
+
+  io.on("connection", socket => {
+    console.log("connect");
+
+    // This is conversation id and access token
+    const { id, token } = socket.handshake.query;
+    socket.join(id as string);
+
+    // console.log({ id, token });
+    socket.on("sent-message", message => {
+      console.log("Sent message");
+
+      console.log({ message });
+
+      socket.broadcast.to(id as string).emit("message-accept", message.message);
+    });
+
+    socket.on("test", msg => {
+      // console.log({ msg, id });
+
+      socket.to(id as string).emit("test", msg);
+    });
+  });
 }
 
 main()

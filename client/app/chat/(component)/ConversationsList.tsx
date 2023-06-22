@@ -6,7 +6,7 @@ const ConversationsList = ({ user }: { user: User }) => {
   const createConversation = async (e: MouseEvent<HTMLButtonElement>) => {
     try {
       const res = await fetch(
-        `${process.env.API_URL}/chat/conversations/create`,
+        `${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/create`,
         {
           cache: "no-store",
           method: "POST",
