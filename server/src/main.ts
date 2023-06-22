@@ -232,7 +232,7 @@ app.get("/chat/conversation/:id", async (req, res) => {
       select: {
         id: true,
         created_at: true,
-
+        name: true,
         messages: {
           select: {
             sent_at: true,

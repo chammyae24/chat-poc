@@ -1,5 +1,4 @@
 import React from "react";
-import Chat from "../(component)/Chat";
 import ConversationsList from "../(component)/ConversationsList";
 
 type Props = {

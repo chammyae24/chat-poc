@@ -1,4 +1,5 @@
 "use client";
+import { conversationName } from "@/app/utils";
 import Link from "next/link";
 import { MouseEvent, useEffect } from "react";
 
@@ -38,7 +39,7 @@ const ConversationsList = ({ user }: { user: User }) => {
             <Link
               href={`/chat/${user.username}/conversation/${c.conversation.id}`}
             >
-              {c.conversation.name}
+              {conversationName(c.conversation.name!, user.username)}
             </Link>
           </li>
         ))}

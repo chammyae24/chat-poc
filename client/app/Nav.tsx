@@ -17,14 +17,16 @@ const Nav = () => {
   }, [session?.user.accessToken]);
 
   return (
-    <div>
-      <Link href="/protected">Protected Page</Link>
-      <Link href={"/chat/" + session?.user?.name}>Chat</Link>
+    <div className="flex justify-between bg-white px-8 py-4 text-black">
+      <div className="flex gap-2">
+        <Link href="/protected">Protected Page</Link>
+        <Link href={"/chat/" + session?.user?.name}>Chat</Link>
+      </div>
 
-      <div>
+      <div className="flex gap-2">
         {session?.user ? (
           <>
-            <p>{session.user.name}</p>
+            <p className="capitalize">{session.user.name}</p>
             <button onClick={() => signOut()}>Sign Out</button>
           </>
         ) : (

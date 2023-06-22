@@ -5,7 +5,8 @@ import { SessionProvider } from "next-auth/react";
 import useAuthContext, {
   AuthContext
 } from "./context/auth-context/useAuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Nav from "./Nav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,11 +24,16 @@ export default function RootLayout({
 }) {
   const [authUser, setAuthUser] = useState<SessionUser | null>(null);
 
+  useEffect(() => {
+    console.log({ authUser });
+  }, [authUser?.accessToken]);
+
   return (
     <html lang="en">
       <body className={inter.className}>
         <SessionProvider session={session}>
           <AuthContext.Provider value={{ authUser, setAuthUser }}>
+            <Nav />
             {children}
           </AuthContext.Provider>
         </SessionProvider>
