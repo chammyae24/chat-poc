@@ -1,61 +1,65 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { useCallback, useRef } from "react";
 
 const SignUpForm = ({
   signUp
 }: {
-  signUp: (data: FormData) => Promise<void>;
+  signUp: (data: FormData) => Promise<{ error: unknown }>;
 }) => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
-  const submitHandler = (e: FormEvent<HTMLFormElement>) => {
-    setEmail("");
-    setPassword("");
-    setUsername("");
-    setConfirmPassword("");
-  };
+  console.log("updating");
+
+  const signUpAction = useCallback(async (data: FormData) => {
+    const { error } = await signUp(data);
+
+    alert(error);
+    console.log(error);
+
+    /* eslint-disable */
+    // usernameRef.current!.value = "";
+    // emailRef.current!.value = "";
+    // passwordRef.current!.value = "";
+    // confirmPasswordRef.current!.value = "";
+  }, []);
+  /* eslint-enable */
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-2">
       <form
-        action={signUp}
-        onSubmit={submitHandler}
+        action={signUpAction}
         className="flex flex-col items-center justify-center gap-4"
       >
         <input
           type="text"
           className="text-black"
           placeholder="username"
-          value={username}
           name="username"
-          onChange={e => setUsername(e.target.value)}
+          ref={usernameRef}
         />
         <input
           type="email"
           className="text-black"
-          value={email}
           name="email"
           placeholder="email"
-          onChange={e => setEmail(e.target.value)}
+          ref={emailRef}
         />
         <input
           type="password"
           name="password"
           className="text-black"
-          value={password}
           placeholder="password"
-          onChange={e => setPassword(e.target.value)}
+          ref={passwordRef}
         />
         <input
           type="password"
           name="confirm-password"
           className="text-black"
-          value={confirmPassword}
           placeholder="confirm-password"
-          onChange={e => setConfirmPassword(e.target.value)}
+          ref={confirmPasswordRef}
         />
         <button type="submit" className="rounded bg-white px-6 py-3 text-black">
           Sign Up

@@ -7,7 +7,7 @@ type Auth = {
 
 export const AuthContext = createContext<Auth>({
   authUser: null,
-  setAuthUser: () => {}
+  setAuthUser: () => null
 });
 
 const useAuthContext = () => useContext(AuthContext);

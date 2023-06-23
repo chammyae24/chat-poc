@@ -24,15 +24,17 @@ type SocketProps = {
 
 const SocketContext = createContext<SocketProps>({
   socket: undefined,
-  setId: () => {},
-  setToken: () => {}
+  setId: () => null,
+  setToken: () => null
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSocket = () => {
   const { socket } = useContext(SocketContext);
   return socket;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSetSocket = () => {
   const { setId, setToken } = useContext(SocketContext);
   return { setId, setToken };
@@ -54,7 +56,7 @@ export function SocketProvider({ children }: Props) {
 
   useEffect(() => {
     if (!id && !token) return;
-    const newSocket = io(process.env.NEXT_PUBLIC_API_URL!, {
+    const newSocket = io(process.env.NEXT_PUBLIC_API_URL ?? "", {
       query: { id, token }
     });
     setSocket(newSocket);

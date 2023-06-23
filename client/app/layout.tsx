@@ -2,11 +2,10 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
-import useAuthContext, {
-  AuthContext
-} from "./context/auth-context/useAuthContext";
-import { useEffect, useState } from "react";
+import { AuthContext } from "./context/auth-context/useAuthContext";
+import { useState } from "react";
 import Nav from "./Nav";
+import { Session } from "next-auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,13 +19,13 @@ export default function RootLayout({
   session
 }: {
   children: React.ReactNode;
-  session: any;
+  session: Session;
 }) {
   const [authUser, setAuthUser] = useState<SessionUser | null>(null);
 
-  useEffect(() => {
-    console.log({ authUser });
-  }, [authUser?.accessToken]);
+  // useEffect(() => {
+  //   console.log({ authUser });
+  // }, [authUser?.accessToken]);
 
   return (
     <html lang="en">

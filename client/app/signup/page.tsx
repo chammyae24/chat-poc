@@ -24,16 +24,24 @@ async function signUp(data: FormData) {
         email
       })
     });
+
     if (!res.ok) {
+      if (res.status <= 200 || res.status > 300) {
+        const error = await res.json();
+        return { error: error.message };
+      }
       throw new Error("Could not sign up.");
     }
 
     redirect("/login");
-  } catch (error) {
-    if ((error as any).message === "NEXT_REDIRECT") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.message === "NEXT_REDIRECT") {
       redirect("/login");
     }
     console.log(error);
+
+    return { error: error.message };
   }
 }
 

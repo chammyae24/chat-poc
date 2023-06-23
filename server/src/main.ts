@@ -25,29 +25,13 @@ app.set("socketio", io);
 const prisma = new PrismaClient();
 
 async function main() {
-  // const testDb = await prisma.userConversation.findMany();
-  // console.log(testDb);
-  // io.on("connection", async socket => {
-  //   console.log("a user connected", socket.id);
-  //   socket.on(
-  //     "sendText",
-  //     async ({ text, userId }: { text: string; userId: string }) => {
-  //       // try {
-  //       //   await prisma.message.create({
-  //       //     data: {
-  //       //       content: text,
-  //       //       userId: parseInt(userId)
-  //       //     }
-  //       //   });
-  //       //   const newTestDb = await prisma.message.findMany();
-  //       //   socket.emit("sentFromDb", newTestDb);
-  //       // } catch (err) {
-  //       //   console.log(err);
-  //       // }
-  //     }
-  //   );
-  //   socket.emit("sentFromDb", testDb);
-  // });
+  const testDt = await prisma.user.findMany({
+    select: {
+      username: true
+    }
+  });
+
+  console.log(testDt);
 
   io.on("connection", socket => {
     console.log("connect");

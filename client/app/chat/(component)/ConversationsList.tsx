@@ -1,10 +1,9 @@
 "use client";
 import { conversationName } from "@/app/utils";
 import Link from "next/link";
-import { MouseEvent, useEffect } from "react";
 
 const ConversationsList = ({ user }: { user: User }) => {
-  const createConversation = async (e: MouseEvent<HTMLButtonElement>) => {
+  const createConversation = async () => {
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/create`,
@@ -37,7 +36,9 @@ const ConversationsList = ({ user }: { user: User }) => {
             <Link
               href={`/chat/${user.username}/conversation/${c.conversation.id}`}
             >
-              {conversationName(c.conversation.name!, user.username)}
+              {c.conversation.name
+                ? conversationName(c.conversation.name, user.username)
+                : ""}
             </Link>
           </li>
         ))}

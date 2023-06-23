@@ -14,6 +14,7 @@ const Nav = () => {
     }
 
     setAuthUser(session.user);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user.accessToken]);
 
   return (

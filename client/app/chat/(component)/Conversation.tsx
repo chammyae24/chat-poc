@@ -1,8 +1,8 @@
 "use client";
 import { useSetSocket, useSocket } from "@/app/context/SocketProvider";
-import useAuthContext from "@/app/context/auth-context/useAuthContext";
+import { conversationName } from "@/app/utils";
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -19,7 +19,7 @@ const sentTime = (time: string) => {
   }`;
 };
 
-const lastMessageRef = (node: any) => {
+const lastMessageRef = (node: HTMLLIElement) => {
   if (node) {
     node.scrollIntoView({
       behavior: "smooth"
@@ -29,7 +29,9 @@ const lastMessageRef = (node: any) => {
 
 const Conversation = ({ conversation }: Props) => {
   const params = useParams();
+  const router = useRouter();
   const msgInputRef = useRef<HTMLInputElement>(null);
+  const updateRef = useRef(false);
 
   const { data: session } = useSession();
   const { setId } = useSetSocket();
@@ -41,7 +43,41 @@ const Conversation = ({ conversation }: Props) => {
     if (typeof params?.id === "string") {
       setId(params.id);
     }
-  }, [params?.id, session?.user.accessToken]);
+  }, [params?.id, session?.user.accessToken, setId]);
+
+  useEffect(() => {
+    if (updateRef.current) {
+      router.refresh();
+    }
+    if (conversation.messages) {
+      setMessages(conversation.messages);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("connect", () => {
+        console.log("connect");
+      });
+
+      socket.on("message-accept", message => {
+        updateRef.current = true;
+        setMessages(msgs => [...msgs, message]);
+      });
+
+      socket.on("test", msg => {
+        console.log(msg);
+      });
+    }
+
+    return () => {
+      socket?.off("message-accept");
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket?.id]);
 
   const onSent = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
@@ -75,6 +111,7 @@ const Conversation = ({ conversation }: Props) => {
             setMessages(msgs => [...msgs, data.message]);
 
             msgInputRef.current.value = "";
+            updateRef.current = true;
           } else {
             throw new Error("Res is not OK.");
           }
@@ -83,39 +120,17 @@ const Conversation = ({ conversation }: Props) => {
         console.log(err);
       }
     },
-    [session?.user.accessToken, socket?.id]
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session?.user.accessToken, socket?.id, params.id]
   );
-
-  useEffect(() => {
-    if (conversation.messages) {
-      setMessages(conversation.messages);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (socket) {
-      socket.on("connect", () => {
-        console.log("connect");
-      });
-
-      socket.on("message-accept", message => {
-        setMessages(msgs => [...msgs, message]);
-      });
-
-      socket.on("test", msg => {
-        console.log(msg);
-      });
-    }
-
-    return () => {
-      socket?.off("message-accept");
-    };
-  }, [msgInputRef.current, socket?.id]);
 
   return (
     <div className="mx-auto flex h-[calc(100vh-24px-2rem)] w-2/3 flex-col justify-between border border-purple-600 p-2">
       <div className=" mb-4 min-h-[40px] rounded bg-purple-600 px-3 py-2">
-        {conversation.name}
+        {conversation.name && session?.user.name
+          ? conversationName(conversation.name, session.user.name)
+          : ""}
       </div>
       {/* sub 1 rem because header is 40px and padding y 1 rem */}
       <div className="flex max-h-[calc(100%-40px-1rem)] flex-col">
@@ -125,11 +140,6 @@ const Conversation = ({ conversation }: Props) => {
               key={message.id}
               ref={messages.length - 1 === index ? lastMessageRef : null}
               className="relative flex flex-col self-end pb-4"
-              style={
-                {
-                  // border: "1px solid red"
-                }
-              }
             >
               <p
                 className={`${

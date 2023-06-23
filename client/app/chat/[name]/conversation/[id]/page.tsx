@@ -9,7 +9,10 @@ export default async function ConversationPage({ params }: Props) {
     const res = await fetch(
       `${process.env.API_URL}/chat/conversation/${params.id}`,
       {
-        cache: "no-store"
+        cache: "no-store",
+        next: {
+          tags: ["conversation"]
+        }
       }
     );
 

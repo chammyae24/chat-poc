@@ -1,40 +1,28 @@
 "use client";
-import useAuthContext from "@/app/context/auth-context/useAuthContext";
-import { signIn, useSession } from "next-auth/react";
-import { FormEvent, useRef, useState } from "react";
+
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { FormEvent, useRef } from "react";
 
 const LoginForm = () => {
-  // const [username, setUsername] = useState("");
-  // const [password, setPassword] = useState("");
-
-  const usernameRef = useRef(null);
-  const passwordRef = useRef(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   console.log("updating");
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // await signIn("credentials", {
-    //   username,
-    //   password,
-    //   redirect: true,
-    //   callbackUrl: "/"
-    // });
-
-    // setUsername("");
-    // setPassword("");
-
     if (usernameRef.current && passwordRef.current) {
       await signIn("credentials", {
-        username: (usernameRef.current as any).value,
-        password: (passwordRef.current as any).value,
+        username: usernameRef.current.value,
+        password: passwordRef.current.value,
         redirect: true,
         callbackUrl: "/"
       });
 
-      (usernameRef.current as any).value = "";
-      (passwordRef.current as any).value = "";
+      usernameRef.current.value = "";
+      passwordRef.current.value = "";
     }
   };
 
@@ -47,22 +35,25 @@ const LoginForm = () => {
         <input
           type="text"
           className="text-black"
-          // value={username}
           name="username"
-          // onChange={e => setUsername(e.target.value)}
           ref={usernameRef}
         />
         <input
           type="password"
           name="password"
           className="text-black"
-          // value={password}
-          // onChange={e => setPassword(e.target.value)}
           ref={passwordRef}
         />
         <button type="submit" className="rounded bg-white px-6 py-3 text-black">
           Log in
         </button>
+
+        <span className="text-xs">
+          Don't have account?{" "}
+          <Link href="/signup" className="underline">
+            Signup
+          </Link>
+        </span>
       </form>
     </div>
   );
