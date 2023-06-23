@@ -2,12 +2,15 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
-import { PrismaClient, user } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { yoga } from "./graphql";
 
 const app = express();
 app.use(express.json());
+// ? gql
+app.use("/graphql", yoga);
 app.use(
   cors({
     origin: "http://localhost:3000"
