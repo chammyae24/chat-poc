@@ -1,9 +1,16 @@
 "use client";
 import { useSetSocket, useSocket } from "@/app/context/SocketProvider";
-import { conversationName } from "@/app/utils";
+import { conversationName, groupSuccessive } from "@/app/utils";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  FormEvent,
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from "react";
 
 type Props = {
   conversation: Conversations;
@@ -135,37 +142,66 @@ const Conversation = ({ conversation }: Props) => {
       {/* sub 1 rem because header is 40px and padding y 1 rem */}
       <div className="flex max-h-[calc(100%-40px-1rem)] flex-col">
         <ul className="grid grid-flow-row auto-rows-min gap-1 overflow-auto rounded">
-          {messages.map((message, index) => (
-            <li
-              key={message.id}
-              ref={messages.length - 1 === index ? lastMessageRef : null}
-              className="relative flex flex-col self-end pb-4"
-            >
-              <p
-                className={`${
-                  message.sender.username === params?.name
-                    ? "self-end bg-white text-black"
-                    : "self-start  bg-purple-600"
-                } relative max-w-[75%] rounded px-3 py-2`}
-              >
-                {message.content}
-              </p>
+          {groupSuccessive(messages).map((messageArr, index, originalArr) => (
+            <Fragment key={index}>
+              {messageArr.map((message, index2) => {
+                const isFirstMsg = index2 === 0;
+                const isLastMsg = messageArr.length - 1 === index2;
+                const isSender = message.sender.username === params?.name;
+                return (
+                  <li
+                    key={message.id}
+                    ref={
+                      originalArr.length - 1 === index ? lastMessageRef : null
+                    }
+                    className={`relative flex flex-col self-end ${
+                      isLastMsg ? "pb-4" : ""
+                    }`}
+                  >
+                    <p
+                      className={`${
+                        isSender
+                          ? "self-end rounded-l-2xl bg-white text-black " +
+                            `${isFirstMsg && "rounded-tr-2xl"} ${
+                              isLastMsg && "rounded-br-2xl"
+                            }`
+                          : "self-start rounded-r-2xl bg-purple-600 " +
+                            `${isFirstMsg && "rounded-tl-2xl"} ${
+                              isLastMsg && "rounded-bl-2xl"
+                            }`
+                      } relative max-w-[75%] rounded px-3 py-2`}
+                    >
+                      {message.content}
+                    </p>
 
-              <span
-                className={`absolute ${
-                  message.sender.username === params?.name
-                    ? "right-0"
-                    : "left-0"
-                } bottom-0 text-xs text-gray-400`}
-              >
-                {sentTime(message.sent_at) +
-                  " by " +
-                  message.sender.username +
-                  "."}
-              </span>
-            </li>
+                    {isLastMsg && (
+                      <span
+                        className={`absolute ${
+                          isSender ? "right-0" : "left-0"
+                        } bottom-0 text-xs text-gray-400`}
+                      >
+                        {sentTime(message.sent_at) +
+                          " by " +
+                          message.sender.username +
+                          "."}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </Fragment>
           ))}
         </ul>
+
+        {/* <ul>
+          {groupSuccessive(messages).map((messageArr, i) => (
+            <Fragment key={i}>
+              {messageArr.map(message => (
+                <li key={message.id}>{message.content}</li>
+              ))}
+            </Fragment>
+          ))}
+        </ul> */}
 
         <form className="mt-4 flex gap-4" onSubmit={onSent}>
           <input

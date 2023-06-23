@@ -25,13 +25,13 @@ app.set("socketio", io);
 const prisma = new PrismaClient();
 
 async function main() {
-  const testDt = await prisma.user.findMany({
-    select: {
-      username: true
-    }
-  });
+  // const testDt = await prisma.user.findMany({
+  //   select: {
+  //     username: true
+  //   }
+  // });
 
-  console.log(testDt);
+  // console.log(testDt);
 
   io.on("connection", socket => {
     console.log("connect");
@@ -42,9 +42,9 @@ async function main() {
 
     // console.log({ id, token });
     socket.on("sent-message", message => {
-      console.log("Sent message");
+      // console.log("Sent message");
 
-      console.log({ message });
+      // console.log({ message });
 
       socket.broadcast.to(id as string).emit("message-accept", message.message);
     });
@@ -254,11 +254,23 @@ app.post("/chat/conversation/message/create", async (req, res) => {
         sender_id: senderId,
         conversation_id: conversationId
       },
-      include: {
+      select: {
+        content: true,
+        id: true,
+        sent_at: true,
+        sender_id: true,
+        conversation_id: true,
         conversation: true,
-        sender: true
+        sender: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     });
+
+    // console.log({ message });
 
     res.status(200).send({ msg: "Ok", senderId, conversationId, message });
   } catch (err) {
