@@ -25,14 +25,6 @@ app.set("socketio", io);
 const prisma = new PrismaClient();
 
 async function main() {
-  // const testDt = await prisma.user.findMany({
-  //   select: {
-  //     username: true
-  //   }
-  // });
-
-  // console.log(testDt);
-
   io.on("connection", socket => {
     console.log("connect");
 
@@ -159,9 +151,6 @@ app.get("/chat/:username", async (req, res) => {
 app.post("/chat/conversations/create", async (req, res) => {
   try {
     const { name, participants } = req.body;
-    // ! DON'T DELETE THIS
-    // await prisma.user_conversation.deleteMany();
-    // await prisma.conversation.deleteMany();
 
     const participantIds = await prisma.user.findMany({
       where: {
@@ -273,6 +262,51 @@ app.post("/chat/conversation/message/create", async (req, res) => {
     // console.log({ message });
 
     res.status(200).send({ msg: "Ok", senderId, conversationId, message });
+  } catch (err) {
+    res.status(500).send({ err });
+  }
+});
+
+app.post("/contact/add", async (req, res) => {
+  try {
+    // ! Don't Do That
+    // await prisma.contact.deleteMany();
+    // Should add Token
+    const { contactUsername, id } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { username: contactUsername },
+      select: {
+        id: true,
+        email: true,
+        username: true
+      }
+    });
+
+    if (!user) {
+      res.status(404).send({ message: "User not found." });
+      return;
+    }
+
+    const contact = await prisma.contact.create({
+      data: {
+        contactOwnerId: id,
+        email: user.email,
+        username: user.username,
+        userId: user.id
+      }
+    });
+
+    const owner = await prisma.user.findUnique({
+      where: {
+        id
+      },
+      include: {
+        contacts: true
+      }
+    });
+
+    res.status(200).send({ message: "OK", contact, owner });
   } catch (err) {
     res.status(500).send({ err });
   }
