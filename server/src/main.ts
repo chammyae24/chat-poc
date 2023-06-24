@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { yoga } from "./graphql";
+import { yoga } from ".";
 
 const app = express();
 app.use(express.json());
@@ -74,11 +74,13 @@ app.post("/auth/login", async (req, res) => {
       return;
     }
 
-    const isValidPassword = await bcrypt.compare(user.password, password);
-    if (isValidPassword) {
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
       res.status(404).json({ message: "Invalid email or password." });
       return;
     }
+
+    console.log({ isValidPassword });
 
     const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY!);
 
@@ -112,7 +114,7 @@ app.post("/auth/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const createdUser = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -317,4 +319,5 @@ app.post("/contact/add", async (req, res) => {
 
 server.listen(4130, () => {
   console.log("listening on *:4130");
+  console.log("GraphiQL on http://localhost:4130/graphql");
 });
