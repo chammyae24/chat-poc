@@ -9,8 +9,11 @@ const typeDefs = /* GraphQL */ `
     content: String
     sent_at: String
     conversation_id: String
-    sender_id: String
     sender: Sender
+  }
+
+  type Mutation {
+    sendMessage(conversation_id: String!, content: String!): Message
   }
 `;
 

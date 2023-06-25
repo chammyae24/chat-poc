@@ -13,6 +13,14 @@ const typeDefs = /* GraphQL */ `
     messages: [Message]
     participants: [Participant]
   }
+
+  type Query {
+    getConversation(id: String!): Conversation
+  }
+
+  type Mutation {
+    createConversation(name: String, participants: [String!]!): Conversation
+  }
 `;
 
 export default typeDefs;

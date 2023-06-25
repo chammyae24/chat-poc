@@ -11,11 +11,11 @@ const typeDefs = /* GraphQL */ `
     email: String
     created_at: String
     conversations: [Conversation]
-    contacts: [User]
+    contacts: [Contact]
   }
 
   type Query {
-    login(username: String, password: String): Session
+    login(username: String!, password: String!): Session
     getLoginUser: User
   }
 
@@ -24,7 +24,7 @@ const typeDefs = /* GraphQL */ `
   }
 
   type Mutation {
-    signUp(username: String, email: String, password: String): SignUpMsg
+    signUp(username: String!, email: String!, password: String!): SignUpMsg
   }
 `;
 
