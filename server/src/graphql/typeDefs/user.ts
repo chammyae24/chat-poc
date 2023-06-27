@@ -5,12 +5,16 @@ const typeDefs = /* GraphQL */ `
     token: String
   }
 
+  type con {
+    conversation: Conversation
+  }
+
   type User {
     id: String
     username: String
     email: String
     created_at: String
-    conversations: [Conversation]
+    conversations: [con]
     contacts: [Contact]
   }
 

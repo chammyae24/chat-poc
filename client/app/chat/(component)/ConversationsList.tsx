@@ -1,9 +1,14 @@
 "use client";
-
 import { conversationName } from "@/app/utils";
 import Link from "next/link";
 
-const ConversationsList = ({ user }: { user: User }) => {
+const ConversationsList = ({
+  user,
+  getloginUser
+}: {
+  user: User;
+  getloginUser: any;
+}) => {
   const createConversation = async () => {
     try {
       const res = await fetch(
@@ -28,6 +33,8 @@ const ConversationsList = ({ user }: { user: User }) => {
       console.log(err);
     }
   };
+
+  console.log(getloginUser);
 
   return (
     <div>

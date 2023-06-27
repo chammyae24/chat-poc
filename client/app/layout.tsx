@@ -6,6 +6,7 @@ import { AuthContext } from "./context/auth-context/useAuthContext";
 import { useState } from "react";
 import Nav from "./Nav";
 import { Session } from "next-auth";
+import ApolloClientProvider from "./apollo/ApolloClientProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,12 +31,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SessionProvider session={session}>
-          <AuthContext.Provider value={{ authUser, setAuthUser }}>
-            <Nav />
-            {children}
-          </AuthContext.Provider>
-        </SessionProvider>
+        <ApolloClientProvider>
+          <SessionProvider session={session}>
+            <AuthContext.Provider value={{ authUser, setAuthUser }}>
+              <Nav />
+              {children}
+            </AuthContext.Provider>
+          </SessionProvider>
+        </ApolloClientProvider>
       </body>
     </html>
   );

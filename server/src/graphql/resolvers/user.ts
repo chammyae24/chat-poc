@@ -40,11 +40,11 @@ const resolvers = {
         throw new GraphQLError(err.message);
       }
     },
-    getLoginUser: async (_: unknown, args: {}, context: GraphQLContext) => {
+    getLoginUser: async (_: unknown, __: {}, context: GraphQLContext) => {
       try {
         const { authUser, prisma } = context;
 
-        console.log({ authUser });
+        // console.log({ authUser });
 
         if (!authUser) {
           throw new GraphQLError("Not authenticated.");
@@ -77,6 +77,8 @@ const resolvers = {
         if (!user) {
           throw new GraphQLError("User not found.");
         }
+
+        // console.log(user.conversations);
 
         return user;
       } catch (err: any) {
