@@ -50,7 +50,7 @@ const Conversation = ({ conversation }: Props) => {
   }, [params?.id, session?.user.accessToken, setId]);
 
   useEffect(() => {
-    console.log({ messages });
+    // console.log({ messages });
 
     if (conversation.messages && !messages) {
       setConversations(prev => {

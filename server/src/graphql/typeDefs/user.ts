@@ -25,6 +25,11 @@ const typeDefs = /* GraphQL */ `
 
   type Mutation {
     signUp(username: String!, email: String!, password: String!): SignUpMsg
+    randomNumber: Float
+  }
+
+  type Subscription {
+    randomNumber: Float!
   }
 `;
 

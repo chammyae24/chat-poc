@@ -15,6 +15,10 @@ const typeDefs = /* GraphQL */ `
   type Mutation {
     sendMessage(conversation_id: String!, content: String!): Message
   }
+
+  type Subscription {
+    message: Message
+  }
 `;
 
 export default typeDefs;

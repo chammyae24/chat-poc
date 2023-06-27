@@ -10,7 +10,7 @@ const resolvers = {
       context: GraphQLContext
     ) => {
       try {
-        const { authUser, prisma } = context;
+        const { authUser, prisma, pubsub } = context;
         const { conversation_id, content } = args;
 
         if (!authUser) {
@@ -41,10 +41,18 @@ const resolvers = {
           throw new GraphQLError("Cannot create message.");
         }
 
+        pubsub.publish("message", { message });
+
         return message;
       } catch (err: any) {
         throw new GraphQLError(err.message);
       }
+    }
+  },
+  Subscription: {
+    message: {
+      subscribe: (_: unknown, args: {}, context: GraphQLContext) =>
+        context.pubsub.subscribe("message")
     }
   }
 };

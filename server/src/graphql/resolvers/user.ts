@@ -121,6 +121,18 @@ const resolvers = {
         // console.log({ err });
         throw new GraphQLError(err.message);
       }
+    },
+    randomNumber: (_: unknown, __: {}, context: GraphQLContext) => {
+      const rdNum = Math.random();
+      context.pubsub.publish("randomNumber", { randomNumber: rdNum });
+      return rdNum;
+    }
+  },
+  Subscription: {
+    randomNumber: {
+      subscribe: (_: unknown, __: {}, context: GraphQLContext) => {
+        return context.pubsub.subscribe("randomNumber");
+      }
     }
   }
 };
