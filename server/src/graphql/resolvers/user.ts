@@ -52,7 +52,7 @@ const resolvers = {
 
         const user = await prisma.user.findUnique({
           where: {
-            username: authUser.username
+            id: authUser.id
           },
           select: {
             id: true,
@@ -79,6 +79,8 @@ const resolvers = {
         }
 
         // console.log(user.conversations);
+
+        // console.log({ user });
 
         return user;
       } catch (err: any) {

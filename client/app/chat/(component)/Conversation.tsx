@@ -5,6 +5,7 @@ import {
   useSetConversations
 } from "@/app/context/conversation-context/ConversationProvider";
 import { conversationName, groupSuccessive } from "@/app/utils";
+import { gql, useMutation } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { FormEvent, Fragment, useCallback, useEffect, useRef } from "react";
@@ -14,10 +15,12 @@ type Props = {
 };
 
 const sentTime = (time: string) => {
-  const hours = new Date(time).getHours();
-  const minutes = new Date(time).getMinutes();
-  const day = new Date(time).toString().split(" ")[0];
+  const timeInt = parseInt(time);
+  const hours = new Date(timeInt).getHours();
+  const minutes = new Date(timeInt).getMinutes();
+  const day = new Date(timeInt).toString().split(" ")[0];
 
+  // console.log({ hours, day, minutes });
   return `Sent ${day} at ${hours % 12 ? hours % 12 : 12}:${minutes} ${
     hours > 12 ? "pm" : "am"
   }`;
@@ -31,6 +34,21 @@ const lastMessageRef = (node: HTMLLIElement) => {
   }
 };
 
+const SEND_MESSAGE = gql`
+  mutation TestMutable($cid: String!, $content: String!) {
+    sendMessage(conversation_id: $cid, content: $content) {
+      id
+      content
+      sent_at
+      conversation_id
+      sender {
+        id
+        username
+      }
+    }
+  }
+`;
+
 const Conversation = ({ conversation }: Props) => {
   const params = useParams();
 
@@ -39,6 +57,8 @@ const Conversation = ({ conversation }: Props) => {
   const { data: session } = useSession();
   const { setId } = useSetSocket();
   const socket = useSocket();
+
+  const [sendMessage] = useMutation(SEND_MESSAGE);
 
   const setConversations = useSetConversations();
   const messages = useConversations(params.id);
@@ -71,6 +91,8 @@ const Conversation = ({ conversation }: Props) => {
       });
 
       socket.on("message-accept", message => {
+        console.log("socket", { message });
+
         setConversations(prev => {
           return { ...prev, [params.id]: [...prev[params.id], message] };
         });
@@ -93,41 +115,34 @@ const Conversation = ({ conversation }: Props) => {
       e.preventDefault();
       try {
         if (msgInputRef.current) {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/chat/conversation/message/create`,
-            {
-              cache: "no-store",
-              method: "POST",
+          const { data } = await sendMessage({
+            context: {
               headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                token: session?.user.accessToken,
-                conversationId: params?.id,
-                content: msgInputRef.current.value
-              })
+                Authorization: `Bearer ${session?.user.accessToken}`
+              }
+            },
+            variables: {
+              cid: params?.id,
+              content: msgInputRef.current.value
             }
-          );
+          });
 
-          if (res.ok) {
-            if (!socket) throw new Error("No socket available.");
-            const data = await res.json();
-            socket.on("connect", () => {
-              console.log("connect");
-            });
-            socket.emit("sent-message", data);
+          if (!socket) throw new Error("No socket available.");
 
-            setConversations(prev => {
-              return {
-                ...prev,
-                [params.id]: [...prev[params.id], data.message]
-              };
-            });
+          // const data = await res.json();
+          socket.on("connect", () => {
+            console.log("connect");
+          });
+          socket.emit("sent-message", data.sendMessage);
 
-            msgInputRef.current.value = "";
-          } else {
-            throw new Error("Res is not OK.");
-          }
+          setConversations(prev => {
+            return {
+              ...prev,
+              [params.id]: [...prev[params.id], data.sendMessage]
+            };
+          });
+
+          msgInputRef.current.value = "";
         }
       } catch (err) {
         console.log(err);

@@ -41,7 +41,7 @@ async function main() {
 
       // console.log({ message });
 
-      socket.broadcast.to(id as string).emit("message-accept", message.message);
+      socket.broadcast.to(id as string).emit("message-accept", message);
     });
 
     socket.on("test", msg => {

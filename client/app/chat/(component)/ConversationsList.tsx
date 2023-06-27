@@ -2,39 +2,32 @@
 import { conversationName } from "@/app/utils";
 import Link from "next/link";
 
-const ConversationsList = ({
-  user,
-  getloginUser
-}: {
-  user: User;
-  getloginUser: any;
-}) => {
+const ConversationsList = ({ user }: { user: User }) => {
   const createConversation = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/create`,
-        {
-          cache: "no-store",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            creator: user.id,
-            participants: ["shine"]
-          })
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Couldn't create conversation.");
-      }
-    } catch (err) {
-      console.log(err);
-    }
+    // try {
+    //   const res = await fetch(
+    //     `${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/create`,
+    //     {
+    //       cache: "no-store",
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json"
+    //       },
+    //       body: JSON.stringify({
+    //         creator: user.id,
+    //         participants: ["shine"]
+    //       })
+    //     }
+    //   );
+    //   if (!res.ok) {
+    //     throw new Error("Couldn't create conversation.");
+    //   }
+    // } catch (err) {
+    //   console.log(err);
+    // }
   };
 
-  console.log(getloginUser);
+  // console.log({ user });
 
   return (
     <div>
