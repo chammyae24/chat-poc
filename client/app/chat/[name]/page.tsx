@@ -1,10 +1,9 @@
-import React from "react";
 import ConversationsList from "../(component)/ConversationsList";
 import { cookies } from "next/headers";
 
 export default async function ChatPage() {
   try {
-    const res = await fetch("http://localhost:4130/graphql", {
+    const res = await fetch(`${process.env.API_URL}/graphql`, {
       method: "POST",
       cache: "no-store",
       headers: {

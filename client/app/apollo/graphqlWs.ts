@@ -4,12 +4,12 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:4130/graphql"
+  uri: `${process.env.NEXT_PUBLIC_API_URL}/graphql`
 });
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: "ws://localhost:4130/graphql"
+    url: process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4130/graphql"
   })
 );
 
@@ -24,7 +24,5 @@ const splitLink = split(
   wsLink,
   httpLink
 );
-
-export const wd = typeof window;
 
 export default splitLink;
