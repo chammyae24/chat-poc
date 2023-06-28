@@ -22,8 +22,7 @@ export type ConversationStateType = {
 
 const ConversationContext = createContext<ConversationContextType>({
   conversations: {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setConversations: () => {}
+  setConversations: () => null
 });
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -43,8 +42,6 @@ export const useConversations = (id: string) => {
 
 const ConversationProvider = ({ children }: Props) => {
   const [conversations, setConversations] = useState<ConversationStateType>({});
-
-  // console.log({ conversations });
 
   return (
     <ConversationContext.Provider value={{ conversations, setConversations }}>
