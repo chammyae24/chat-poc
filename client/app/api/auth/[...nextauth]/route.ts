@@ -19,18 +19,31 @@ const handler = NextAuth({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { username, password } = credentials as any;
 
-        const res = await fetch(`${process.env.API_URL}/auth/login`, {
+        const res = await fetch(`${process.env.API_URL}/graphql`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            username,
-            password
+            query: /* GraphQL */ `
+              query LogIn($username: String!, $password: String!) {
+                login(username: $username, password: $password) {
+                  name
+                  email
+                  token
+                }
+              }
+            `,
+            variables: {
+              username,
+              password
+            }
           })
         });
 
-        const { user } = await res.json();
+        const { data } = await res.json();
+
+        const user = await data.login;
 
         if (res.ok && user) {
           return user;

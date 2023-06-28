@@ -7,10 +7,10 @@ type Props = {
   children: ReactNode;
 };
 
-const ChatLayout = ({ children }: Props) => {
+const ChatLayout = (props: Props) => {
   return (
     <ConversationProvider>
-      <SocketProvider>{children}</SocketProvider>
+      <SocketProvider>{props.children}</SocketProvider>
     </ConversationProvider>
   );
 };

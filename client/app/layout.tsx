@@ -17,9 +17,11 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
-  session
+  session,
+  conversationCreate
 }: {
   children: React.ReactNode;
+  conversationCreate: React.ReactNode;
   session: Session;
 }) {
   const [authUser, setAuthUser] = useState<SessionUser | null>(null);
@@ -36,6 +38,7 @@ export default function RootLayout({
             <AuthContext.Provider value={{ authUser, setAuthUser }}>
               <Nav />
               {children}
+              {conversationCreate}
             </AuthContext.Provider>
           </SessionProvider>
         </ApolloClientProvider>
