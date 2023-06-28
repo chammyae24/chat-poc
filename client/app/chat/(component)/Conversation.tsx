@@ -1,12 +1,10 @@
 "use client";
-// import {useSetSocket, useSocket} from "@/app/context/SocketProvider";
 import {
   useConversations,
   useSetConversations
 } from "@/app/context/conversation-context/ConversationProvider";
 import { conversationName, groupSuccessive } from "@/app/utils";
 import { gql, useMutation, useSubscription } from "@apollo/client";
-import { createClient } from "graphql-ws";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { FormEvent, Fragment, useCallback, useEffect, useRef } from "react";
@@ -21,7 +19,6 @@ const sentTime = (time: string) => {
   const minutes = new Date(timeInt).getMinutes();
   const day = new Date(timeInt).toString().split(" ")[0];
 
-  // console.log({ hours, day, minutes });
   return `Sent ${day} at ${hours % 12 ? hours % 12 : 12}:${minutes} ${
     hours > 12 ? "pm" : "am"
   }`;
@@ -34,11 +31,6 @@ const lastMessageRef = (node: HTMLLIElement) => {
     });
   }
 };
-
-const wsClient = createClient({
-  url: "ws://localhost:4130/graphql"
-  // url: "http://localhost:4130/subscriptions"
-});
 
 const SEND_MESSAGE = gql`
   mutation TestMutable($cid: String!, $content: String!) {
@@ -55,20 +47,20 @@ const SEND_MESSAGE = gql`
   }
 `;
 
-// const MESSAGE_SUBSCRIPTION = gql`
-//   subscription {
-//     message {
-//       id
-//       content
-//       sent_at
-//       conversation_id
-//       sender {
-//         id
-//         username
-//       }
-//     }
-//   }
-// `;
+const MESSAGE_SUB = gql`
+  subscription {
+    message {
+      id
+      content
+      sent_at
+      conversation_id
+      sender {
+        id
+        username
+      }
+    }
+  }
+`;
 
 const Conversation = ({ conversation }: Props) => {
   const params = useParams();
@@ -76,25 +68,14 @@ const Conversation = ({ conversation }: Props) => {
   const msgInputRef = useRef<HTMLInputElement>(null);
 
   const { data: session } = useSession();
-  // const { setId } = useSetSocket();
-  // const socket = useSocket();
 
   const [sendMessage] = useMutation(SEND_MESSAGE);
-  // const { data, error } = useSubscription(MESSAGE_SUBSCRIPTION);
+  const { data, error } = useSubscription(MESSAGE_SUB);
 
   const setConversations = useSetConversations();
   const messages = useConversations(params.id);
 
-  // useEffect(() => {
-  //   if (typeof params?.id === "string") {
-  //     setId(params.id);
-  //   }
-  // }, [params?.id, session?.user.accessToken, setId]);
-
   useEffect(() => {
-    // console.log({ messages });
-    // console.log({ data, error });
-
     if (conversation.messages && !messages) {
       setConversations(prev => {
         return { ...prev, [params.id]: conversation.messages ?? [] };
@@ -107,83 +88,28 @@ const Conversation = ({ conversation }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   if (socket) {
-  //     socket.on("connect", () => {
-  //       console.log("connect");
-  //     });
-
-  //     socket.on("message-accept", message => {
-  //       console.log("socket", { message });
-
-  //       setConversations(prev => {
-  //         return { ...prev, [params.id]: [...prev[params.id], message] };
-  //       });
-  //     });
-
-  //     socket.on("test", msg => {
-  //       console.log(msg);
-  //     });
-  //   }
-
-  //   return () => {
-  //     socket?.off("message-accept");
-  //   };
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [socket?.id]);
-
   useEffect(() => {
-    const unSubscribe = wsClient.subscribe(
-      {
-        query: /* GraphQL */ `
-          subscription {
-            message {
-              id
-              content
-              sent_at
-              conversation_id
-              sender {
-                id
-                username
-              }
-            }
-          }
-        `
-      },
-      {
-        next: ({ data }) => {
-          console.log("DATA");
+    console.log({ error, data });
+    if (data) {
+      setConversations(prev => {
+        return {
+          ...prev,
+          [params.id]: [...prev[params.id], data?.message as Message]
+        };
+      });
+    }
 
-          console.log({ data });
-          setConversations(prev => {
-            return {
-              ...prev,
-              [params.id]: [...prev[params.id], data?.message as any]
-            };
-          });
-        },
-        error: error => {
-          console.log("ERROR");
-
-          console.log({ error });
-        },
-        complete: () => {
-          console.log("Complete");
-        }
-      }
-    );
-    return () => {
-      unSubscribe();
-    };
-  }, [params.id, setConversations]);
+    if (error) {
+      console.log(error);
+    }
+  }, [data, error, params.id, setConversations]);
 
   const onSent = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       try {
         if (msgInputRef.current) {
-          const { data } = await sendMessage({
+          await sendMessage({
             context: {
               headers: {
                 Authorization: `Bearer ${session?.user.accessToken}`
@@ -195,21 +121,6 @@ const Conversation = ({ conversation }: Props) => {
             }
           });
 
-          // if (!socket) throw new Error("No socket available.");
-
-          // const data = await res.json();
-          // socket.on("connect", () => {
-          //   console.log("connect");
-          // });
-          // socket.emit("sent-message", data.sendMessage);
-
-          // setConversations(prev => {
-          //   return {
-          //     ...prev,
-          //     [params.id]: [...prev[params.id], data.sendMessage]
-          //   };
-          // });
-
           msgInputRef.current.value = "";
         }
       } catch (err) {
@@ -217,12 +128,7 @@ const Conversation = ({ conversation }: Props) => {
       }
     },
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      session?.user.accessToken,
-      // socket?.id,
-      params.id
-    ]
+    [params?.id, sendMessage, session?.user.accessToken]
   );
 
   return (

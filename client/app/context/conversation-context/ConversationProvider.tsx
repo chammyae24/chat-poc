@@ -44,7 +44,7 @@ export const useConversations = (id: string) => {
 const ConversationProvider = ({ children }: Props) => {
   const [conversations, setConversations] = useState<ConversationStateType>({});
 
-  console.log({ conversations });
+  // console.log({ conversations });
 
   return (
     <ConversationContext.Provider value={{ conversations, setConversations }}>

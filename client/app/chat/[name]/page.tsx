@@ -1,28 +1,6 @@
 import React from "react";
 import ConversationsList from "../(component)/ConversationsList";
-// import { client } from "@/app/apollo/ApolloClientProvider";
-// import { gql } from "@apollo/client";
 import { cookies } from "next/headers";
-
-// const GET_LOGIN_USER = gql`
-//   query {
-//     getLoginUser {
-//       id
-//       username
-//       email
-//       created_at
-//       conversations {
-//         conversation {
-//           id
-//           name
-//         }
-//       }
-//       contacts {
-//         username
-//       }
-//     }
-//   }
-// `;
 
 export default async function ChatPage() {
   try {
