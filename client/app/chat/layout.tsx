@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode } from "react";
-import { SocketProvider } from "../context/SocketProvider";
+// import { SocketProvider } from "../context/SocketProvider";
 import ConversationProvider from "../context/conversation-context/ConversationProvider";
 
 type Props = {
@@ -10,7 +10,9 @@ type Props = {
 const ChatLayout = (props: Props) => {
   return (
     <ConversationProvider>
-      <SocketProvider>{props.children}</SocketProvider>
+      {/* <SocketProvider>
+        </SocketProvider> */}
+      {props.children}
     </ConversationProvider>
   );
 };

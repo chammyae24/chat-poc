@@ -1,11 +1,12 @@
 "use client";
-import { useSetSocket, useSocket } from "@/app/context/SocketProvider";
+// import {useSetSocket, useSocket} from "@/app/context/SocketProvider";
 import {
   useConversations,
   useSetConversations
 } from "@/app/context/conversation-context/ConversationProvider";
 import { conversationName, groupSuccessive } from "@/app/utils";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useSubscription } from "@apollo/client";
+import { createClient } from "graphql-ws";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { FormEvent, Fragment, useCallback, useEffect, useRef } from "react";
@@ -34,6 +35,11 @@ const lastMessageRef = (node: HTMLLIElement) => {
   }
 };
 
+const wsClient = createClient({
+  url: "ws://localhost:4130/graphql"
+  // url: "http://localhost:4130/subscriptions"
+});
+
 const SEND_MESSAGE = gql`
   mutation TestMutable($cid: String!, $content: String!) {
     sendMessage(conversation_id: $cid, content: $content) {
@@ -49,28 +55,45 @@ const SEND_MESSAGE = gql`
   }
 `;
 
+// const MESSAGE_SUBSCRIPTION = gql`
+//   subscription {
+//     message {
+//       id
+//       content
+//       sent_at
+//       conversation_id
+//       sender {
+//         id
+//         username
+//       }
+//     }
+//   }
+// `;
+
 const Conversation = ({ conversation }: Props) => {
   const params = useParams();
 
   const msgInputRef = useRef<HTMLInputElement>(null);
 
   const { data: session } = useSession();
-  const { setId } = useSetSocket();
-  const socket = useSocket();
+  // const { setId } = useSetSocket();
+  // const socket = useSocket();
 
   const [sendMessage] = useMutation(SEND_MESSAGE);
+  // const { data, error } = useSubscription(MESSAGE_SUBSCRIPTION);
 
   const setConversations = useSetConversations();
   const messages = useConversations(params.id);
 
-  useEffect(() => {
-    if (typeof params?.id === "string") {
-      setId(params.id);
-    }
-  }, [params?.id, session?.user.accessToken, setId]);
+  // useEffect(() => {
+  //   if (typeof params?.id === "string") {
+  //     setId(params.id);
+  //   }
+  // }, [params?.id, session?.user.accessToken, setId]);
 
   useEffect(() => {
     // console.log({ messages });
+    // console.log({ data, error });
 
     if (conversation.messages && !messages) {
       setConversations(prev => {
@@ -84,31 +107,76 @@ const Conversation = ({ conversation }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // useEffect(() => {
+  //   if (socket) {
+  //     socket.on("connect", () => {
+  //       console.log("connect");
+  //     });
+
+  //     socket.on("message-accept", message => {
+  //       console.log("socket", { message });
+
+  //       setConversations(prev => {
+  //         return { ...prev, [params.id]: [...prev[params.id], message] };
+  //       });
+  //     });
+
+  //     socket.on("test", msg => {
+  //       console.log(msg);
+  //     });
+  //   }
+
+  //   return () => {
+  //     socket?.off("message-accept");
+  //   };
+
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [socket?.id]);
+
   useEffect(() => {
-    if (socket) {
-      socket.on("connect", () => {
-        console.log("connect");
-      });
+    const unSubscribe = wsClient.subscribe(
+      {
+        query: /* GraphQL */ `
+          subscription {
+            message {
+              id
+              content
+              sent_at
+              conversation_id
+              sender {
+                id
+                username
+              }
+            }
+          }
+        `
+      },
+      {
+        next: ({ data }) => {
+          console.log("DATA");
 
-      socket.on("message-accept", message => {
-        console.log("socket", { message });
+          console.log({ data });
+          setConversations(prev => {
+            return {
+              ...prev,
+              [params.id]: [...prev[params.id], data?.message as any]
+            };
+          });
+        },
+        error: error => {
+          console.log("ERROR");
 
-        setConversations(prev => {
-          return { ...prev, [params.id]: [...prev[params.id], message] };
-        });
-      });
-
-      socket.on("test", msg => {
-        console.log(msg);
-      });
-    }
-
+          console.log({ error });
+        },
+        complete: () => {
+          console.log("Complete");
+        }
+      }
+    );
     return () => {
-      socket?.off("message-accept");
+      unSubscribe();
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket?.id]);
+  }, [params.id, setConversations]);
 
   const onSent = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
@@ -127,20 +195,20 @@ const Conversation = ({ conversation }: Props) => {
             }
           });
 
-          if (!socket) throw new Error("No socket available.");
+          // if (!socket) throw new Error("No socket available.");
 
           // const data = await res.json();
-          socket.on("connect", () => {
-            console.log("connect");
-          });
-          socket.emit("sent-message", data.sendMessage);
+          // socket.on("connect", () => {
+          //   console.log("connect");
+          // });
+          // socket.emit("sent-message", data.sendMessage);
 
-          setConversations(prev => {
-            return {
-              ...prev,
-              [params.id]: [...prev[params.id], data.sendMessage]
-            };
-          });
+          // setConversations(prev => {
+          //   return {
+          //     ...prev,
+          //     [params.id]: [...prev[params.id], data.sendMessage]
+          //   };
+          // });
 
           msgInputRef.current.value = "";
         }
@@ -150,7 +218,11 @@ const Conversation = ({ conversation }: Props) => {
     },
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session?.user.accessToken, socket?.id, params.id]
+    [
+      session?.user.accessToken,
+      // socket?.id,
+      params.id
+    ]
   );
 
   return (

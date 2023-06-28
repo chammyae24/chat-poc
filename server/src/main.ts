@@ -6,6 +6,8 @@ import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { yoga } from ".";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
 
 const app = express();
 app.use(express.json());
@@ -18,38 +20,72 @@ app.use(
 );
 const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:3000"]
-  }
+// const io = new Server(server, {
+//   cors: {
+//     origin: ["http://localhost:3000"]
+//   }
+// });
+// app.set("socketio", io);
+
+const wsServer = new WebSocketServer({
+  server,
+  path: yoga.graphqlEndpoint
 });
-app.set("socketio", io);
+
+console.log({ endpoint: yoga.graphqlEndpoint });
+
+useServer(
+  {
+    execute: (args: any) => args.rootValue.execute(args),
+    subscribe: (args: any) => args.rootValue.subscribe(args),
+    onSubscribe: async (ctx, msg) => {
+      const { schema, execute, subscribe, contextFactory, parse, validate } =
+        yoga.getEnveloped({
+          ...ctx,
+          req: ctx.extra.request,
+          socket: ctx.extra.socket,
+          params: msg.payload
+        });
+
+      const args = {
+        schema,
+        operationName: msg.payload.operationName,
+        document: parse(msg.payload.query),
+        variableValues: msg.payload.variables,
+        contextValue: await contextFactory(),
+        rootValue: {
+          execute,
+          subscribe
+        }
+      };
+
+      const errors = validate(args.schema, args.document);
+      if (errors.length) return errors;
+      return args;
+    }
+  },
+  wsServer
+);
 
 const prisma = new PrismaClient();
 
 async function main() {
-  io.on("connection", socket => {
-    console.log("connect");
-
-    // This is conversation id and access token
-    const { id, token } = socket.handshake.query;
-    socket.join(id as string);
-
-    // console.log({ id, token });
-    socket.on("sent-message", message => {
-      // console.log("Sent message");
-
-      // console.log({ message });
-
-      socket.broadcast.to(id as string).emit("message-accept", message);
-    });
-
-    socket.on("test", msg => {
-      // console.log({ msg, id });
-
-      socket.to(id as string).emit("test", msg);
-    });
-  });
+  // io.on("connection", socket => {
+  //   console.log("connect");
+  //   // This is conversation id and access token
+  //   const { id, token } = socket.handshake.query;
+  //   socket.join(id as string);
+  //   // console.log({ id, token });
+  //   socket.on("sent-message", message => {
+  //     // console.log("Sent message");
+  //     // console.log({ message });
+  //     socket.broadcast.to(id as string).emit("message-accept", message);
+  //   });
+  //   socket.on("test", msg => {
+  //     // console.log({ msg, id });
+  //     socket.to(id as string).emit("test", msg);
+  //   });
+  // });
 }
 
 main()
