@@ -29,18 +29,19 @@ model conversation {
     updated_at   DateTime            @updatedAt
     messages     message[]
     participants user_conversation[]
-    last_message last_message?
+    lastMsg      message?            @relation("LastMsg")
 }
 
 model message {
-    id              String        @id @default(uuid())
-    content         String
-    sent_at         DateTime      @default(now())
-    conversation_id String
-    sender_id       String
-    conversation    conversation  @relation(fields: [conversation_id], references: [id])
-    sender          user          @relation("SenderMessages", fields: [sender_id], references: [id])
-    last_message    last_message?
+    id                     String        @id @default(uuid())
+    content                String
+    sent_at                DateTime      @default(now())
+    conversation_id        String
+    sender_id              String
+    conversation           conversation  @relation(fields: [conversation_id], references: [id])
+    sender                 user          @relation("SenderMessages", fields: [sender_id], references: [id])
+    cid                    String?       @unique
+    conversation_4_lastmsg conversation? @relation("LastMsg", fields: [cid], references: [id])
 }
 
 model user_conversation {
@@ -65,14 +66,4 @@ model contact {
 
     contactOwnerId String
     user           user   @relation(fields: [contactOwnerId], references: [id])
-}
-
-model last_message {
-    // id             String       @id @default(uuid())
-    msgId          String       @unique
-    conversationId String       @unique
-    message        message      @relation(fields: [msgId], references: [id])
-    conversation   conversation @relation(fields: [conversationId], references: [id])
-
-    @@id([msgId, conversationId])
 }
