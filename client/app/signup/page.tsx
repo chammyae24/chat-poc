@@ -12,16 +12,30 @@ async function signUp(data: FormData) {
     if (password !== confirmPassword) {
       throw new Error("Invalid password.");
     }
-    const res = await fetch(`${process.env.API_URL}/auth/signup`, {
+
+    const res = await fetch(`${process.env.API_URL}/graphql`, {
       cache: "no-store",
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        username,
-        password,
-        email
+        query: /* GraphQL */ `
+          mutation SignUp(
+            $username: String!
+            $password: String!
+            $email: String!
+          ) {
+            signUp(username: $username, email: $email, password: $password) {
+              message
+            }
+          }
+        `,
+        variables: {
+          username,
+          email,
+          password
+        }
       })
     });
 

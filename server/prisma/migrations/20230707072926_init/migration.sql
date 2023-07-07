@@ -1,36 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Conversation` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Message` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `UserConversation` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "Message" DROP CONSTRAINT "Message_conversation_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "Message" DROP CONSTRAINT "Message_sender_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "UserConversation" DROP CONSTRAINT "UserConversation_conversation_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "UserConversation" DROP CONSTRAINT "UserConversation_user_id_fkey";
-
--- DropTable
-DROP TABLE "Conversation";
-
--- DropTable
-DROP TABLE "Message";
-
--- DropTable
-DROP TABLE "User";
-
--- DropTable
-DROP TABLE "UserConversation";
-
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
@@ -49,6 +16,7 @@ CREATE TABLE "conversation" (
     "name" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "lastMsgId" TEXT,
 
     CONSTRAINT "conversation_pkey" PRIMARY KEY ("id")
 );
@@ -73,6 +41,20 @@ CREATE TABLE "user_conversation" (
     CONSTRAINT "user_conversation_pkey" PRIMARY KEY ("user_id","conversation_id")
 );
 
+-- CreateTable
+CREATE TABLE "contact" (
+    "id" TEXT NOT NULL,
+    "name" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "contactOwnerId" TEXT NOT NULL,
+
+    CONSTRAINT "contact_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "user_username_key" ON "user"("username");
 
@@ -80,13 +62,19 @@ CREATE UNIQUE INDEX "user_username_key" ON "user"("username");
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
 -- AddForeignKey
-ALTER TABLE "message" ADD CONSTRAINT "message_conversation_id_fkey" FOREIGN KEY ("conversation_id") REFERENCES "conversation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "conversation" ADD CONSTRAINT "conversation_lastMsgId_fkey" FOREIGN KEY ("lastMsgId") REFERENCES "message"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "message" ADD CONSTRAINT "message_sender_id_fkey" FOREIGN KEY ("sender_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "message" ADD CONSTRAINT "message_conversation_id_fkey" FOREIGN KEY ("conversation_id") REFERENCES "conversation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "user_conversation" ADD CONSTRAINT "user_conversation_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "user_conversation" ADD CONSTRAINT "user_conversation_conversation_id_fkey" FOREIGN KEY ("conversation_id") REFERENCES "conversation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "contact" ADD CONSTRAINT "contact_contactOwnerId_fkey" FOREIGN KEY ("contactOwnerId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

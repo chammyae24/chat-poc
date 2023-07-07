@@ -36,5 +36,6 @@ interface Conversations {
   created_at: string;
   updated_at: string;
   messages: ?Message[];
+  lastMessage: ?Message;
   participants: ?User[];
 }

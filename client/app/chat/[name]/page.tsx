@@ -1,25 +1,55 @@
-import React from "react";
 import ConversationsList from "../(component)/ConversationsList";
+import { cookies } from "next/headers";
 
-type Props = {
-  params: { name: string };
-};
-
-export default async function ChatPage({ params }: Props) {
+export default async function ChatPage() {
   try {
-    const res = await fetch(`${process.env.API_URL}/chat/${params.name}`, {
-      cache: "no-store"
+    const res = await fetch(`${process.env.API_URL}/graphql`, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookies().get("auth-access-token")?.value}`
+      },
+      body: JSON.stringify({
+        query: /* GraphQL */ `
+          query {
+            getLoginUser {
+              id
+              username
+              email
+              created_at
+              conversations {
+                conversation {
+                  id
+                  name
+                  lastMessage {
+                    id
+                    content
+                  }
+                }
+              }
+              contacts {
+                username
+              }
+            }
+          }
+        `
+      })
     });
 
     if (!res.ok) {
-      throw new Error("Could not found user");
+      const { error } = await res.json();
+      throw new Error(error.message);
     }
 
-    const user = await res.json();
+    const json = await res.json();
+    const data = await json.data;
+
+    const getLoginUser = await data.getLoginUser;
 
     return (
       <div>
-        <ConversationsList user={user} />
+        <ConversationsList user={getLoginUser} />
       </div>
     );
   } catch (e) {
