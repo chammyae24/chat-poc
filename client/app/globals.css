@@ -25,3 +25,13 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.messages-container:after {
+  content: "";
+  background: linear-gradient(
+    rgb(255, 70, 215) 0%,
+    rgb(172, 70, 255) 50%,
+    rgb(0, 38, 255) 100%
+  );
+  @apply pointer-events-none absolute left-0 top-0 h-full w-full mix-blend-color;
+}

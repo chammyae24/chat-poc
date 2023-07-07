@@ -132,14 +132,14 @@ const Conversation = ({ conversation }: Props) => {
   );
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-24px-2rem)] w-2/3 flex-col justify-between border border-purple-600 p-2">
+    <div className="mx-auto flex h-[calc(100vh-24px-2rem)] w-2/3 flex-col justify-between border border-purple-600 bg-black p-2">
       <div className=" mb-4 min-h-[40px] rounded bg-purple-600 px-3 py-2">
         {conversation.name && session?.user.name
           ? conversationName(conversation.name, session.user.name)
           : ""}
       </div>
       {/* sub 1 rem because header is 40px and padding y 1 rem */}
-      <div className="flex max-h-[calc(100%-40px-1rem)] flex-col">
+      <div className="messages-container relative flex max-h-[calc(100%-40px-1rem)] flex-col">
         <ul className="grid grid-flow-row auto-rows-min gap-1 overflow-auto rounded">
           {groupSuccessive(messages ?? []).map(
             (messageArr, index, originalArr) => (
@@ -161,7 +161,7 @@ const Conversation = ({ conversation }: Props) => {
                       <p
                         className={`${
                           isSender
-                            ? "self-end rounded-l-2xl bg-white text-black " +
+                            ? "relative z-10 self-end rounded-l-2xl bg-white text-black " +
                               `${isFirstMsg && "rounded-tr-2xl"} ${
                                 isLastMsg && "rounded-br-2xl"
                               }`
@@ -176,7 +176,7 @@ const Conversation = ({ conversation }: Props) => {
 
                       {isLastMsg && (
                         <span
-                          className={`absolute ${
+                          className={`absolute z-10 ${
                             isSender ? "right-0" : "left-0"
                           } bottom-0 text-xs text-gray-400`}
                         >
