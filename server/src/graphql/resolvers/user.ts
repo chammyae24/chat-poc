@@ -61,7 +61,18 @@ const resolvers = {
             created_at: true,
             conversations: {
               select: {
-                conversation: true
+                conversation: {
+                  select: {
+                    id: true,
+                    name: true,
+                    lastMessage: {
+                      select: {
+                        id: true,
+                        content: true
+                      }
+                    }
+                  }
+                }
               }
             },
             contacts: {

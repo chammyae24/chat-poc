@@ -22,6 +22,10 @@ export default async function ChatPage() {
                 conversation {
                   id
                   name
+                  lastMessage {
+                    id
+                    content
+                  }
                 }
               }
               contacts {

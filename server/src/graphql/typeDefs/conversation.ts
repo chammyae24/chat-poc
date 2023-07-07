@@ -11,6 +11,7 @@ const typeDefs = /* GraphQL */ `
     created_at: String
     updated_at: String
     messages: [Message]
+    lastMessage: Message
     participants: [Participant]
   }
 

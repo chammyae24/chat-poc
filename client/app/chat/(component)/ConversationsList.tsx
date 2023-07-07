@@ -48,17 +48,26 @@ const ConversationsList = ({ user }: { user: User }) => {
   //   }
   // };
 
+  console.log(user?.conversations);
+
   return (
     <div>
       <ul>
         {user.conversations?.map(c => (
-          <li key={c.conversation.id} className="underline">
+          <li key={c.conversation.id}>
             <Link
               href={`/chat/${user.username}/conversation/${c.conversation.id}`}
             >
-              {c.conversation.name
-                ? conversationName(c.conversation.name, user.username)
-                : ""}
+              <div>
+                <p className="text-xl">
+                  {c.conversation.name
+                    ? conversationName(c.conversation.name, user.username)
+                    : ""}
+                </p>
+                <span className=" text-xs">
+                  {c.conversation.lastMessage?.content ?? ""}
+                </span>
+              </div>
             </Link>
           </li>
         ))}

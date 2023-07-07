@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import { GraphQLError } from "graphql";
 import { GraphQLContext } from "../types";
 
@@ -34,6 +33,16 @@ const resolvers = {
                 username: true
               }
             }
+          }
+        });
+
+        // TESTING
+        await prisma.conversation.update({
+          data: {
+            lastMsgId: message.id
+          },
+          where: {
+            id: conversation_id
           }
         });
 
