@@ -63,7 +63,14 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = user.token;
-        cookies().set("auth-access-token", user.token);
+        const date = new Date();
+        date.setMonth(date.getMonth() + 1);
+        date.setDate(date.getDate() - 1);
+        cookies().set("auth-access-token", user.token, {
+          httpOnly: true,
+          sameSite: "lax",
+          expires: date
+        });
       }
 
       return token;

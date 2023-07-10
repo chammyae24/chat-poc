@@ -47,6 +47,10 @@ export default async function ChatPage() {
 
     const getLoginUser = await data.getLoginUser;
 
+    if (!getLoginUser) {
+      throw new Error("No login");
+    }
+
     return (
       <div>
         <ConversationsList user={getLoginUser} />

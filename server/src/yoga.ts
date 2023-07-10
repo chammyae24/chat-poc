@@ -1,16 +1,12 @@
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { YogaInitialContext, createPubSub, createYoga } from "graphql-yoga";
 import { PrismaClient } from "@prisma/client";
-import { typeDefs } from "./graphql/typeDefs";
-import { resolvers } from "./graphql/resolvers";
+import { typeDefs, resolvers } from "./graphql";
+
 import { JwtPayload, verify } from "jsonwebtoken";
 import { GraphQLContext } from "./graphql/types";
 
 const prisma = new PrismaClient();
-
-export type PubSubChannels = {
-  randomNumber: [{ randomNumber: number }];
-};
 const pubsub = createPubSub();
 export type Pubsub = typeof pubsub;
 
@@ -34,7 +30,6 @@ async function createContext(
     });
     return { prisma, authUser: user, pubsub };
   } catch (err) {
-    // console.log({ err });
     return { prisma, authUser: null, pubsub };
   }
 }

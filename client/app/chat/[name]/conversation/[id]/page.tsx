@@ -48,6 +48,10 @@ export default async function ConversationPage({ params }: Props) {
     const { data } = await res.json();
     const getConversation = await data.getConversation;
 
+    if (!getConversation) {
+      throw new Error("No conversation.");
+    }
+
     return (
       <div>
         <Conversation conversation={getConversation} />

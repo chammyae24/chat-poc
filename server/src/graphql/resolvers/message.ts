@@ -16,6 +16,25 @@ const resolvers = {
           throw new GraphQLError("Not authenticated.");
         }
 
+        //! TESTING
+        // ? Checck if auth user is in conversation
+        const test = await prisma.user_conversation.findFirst({
+          where: {
+            user_id: authUser.id
+          },
+          select: {
+            conversation_id: true
+          }
+        });
+
+        if (!test) {
+          throw new GraphQLError("No conversation.");
+        }
+        if (test.conversation_id !== conversation_id) {
+          throw new GraphQLError("You don't belong to this conversation.");
+        }
+        // !
+
         const message = await prisma.message.create({
           data: {
             content,
@@ -36,7 +55,12 @@ const resolvers = {
           }
         });
 
-        // TESTING
+        if (!message) {
+          throw new GraphQLError("Cannot create message.");
+        }
+
+        //! TESTING
+        // ? update last message
         await prisma.conversation.update({
           data: {
             lastMsgId: message.id
@@ -45,10 +69,7 @@ const resolvers = {
             id: conversation_id
           }
         });
-
-        if (!message) {
-          throw new GraphQLError("Cannot create message.");
-        }
+        // !
 
         pubsub.publish("message", { message });
 

@@ -44,8 +44,6 @@ const resolvers = {
       try {
         const { authUser, prisma } = context;
 
-        // console.log({ authUser });
-
         if (!authUser) {
           throw new GraphQLError("Not authenticated.");
         }
@@ -88,10 +86,6 @@ const resolvers = {
         if (!user) {
           throw new GraphQLError("User not found.");
         }
-
-        // console.log(user.conversations);
-
-        // console.log({ user });
 
         return user;
       } catch (err: any) {
@@ -141,13 +135,6 @@ const resolvers = {
       const rdNum = Math.random();
       context.pubsub.publish("randomNumber", { randomNumber: rdNum });
       return rdNum;
-    }
-  },
-  Subscription: {
-    randomNumber: {
-      subscribe: (_: unknown, __: {}, context: GraphQLContext) => {
-        return context.pubsub.subscribe("randomNumber");
-      }
     }
   }
 };

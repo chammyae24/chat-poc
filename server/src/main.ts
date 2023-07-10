@@ -21,8 +21,6 @@ const wsServer = new WebSocketServer({
   path: yoga.graphqlEndpoint
 });
 
-console.log({ endpoint: yoga.graphqlEndpoint });
-
 useServer(
   {
     execute: (args: any) => args.rootValue.execute(args),
